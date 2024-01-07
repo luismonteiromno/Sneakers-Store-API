@@ -14,6 +14,7 @@ class Brands(models.Model):
 
 
 class Lines(models.Model):
+    brand_line = models.ForeignKey(Brands, verbose_name='Linha da Marca', related_name='brand_line', on_delete=models.CASCADE)
     create_line = models.CharField('Criar Linha', max_length=50)
 
     def __str__(self):
@@ -28,8 +29,8 @@ class Sneakers(models.Model):
     photo = models.ImageField('Foto')
     name = models.CharField('Nome', max_length=255)
     price = models.FloatField('Preço')
-    brand = models.ForeignKey(Brands, verbose_name='Marca', default='', on_delete=models.CASCADE)
-    line = models.ForeignKey(Lines, verbose_name='Pertence a linha', blank=True, null=True, on_delete=models.CASCADE)
+    brand = models.ForeignKey(Brands, verbose_name='Marca', default='', related_name='sneaker_brand', on_delete=models.CASCADE)
+    line = models.ForeignKey(Lines, verbose_name='Pertence a linha', blank=True, null=True, related_name='sneaker_line', on_delete=models.CASCADE)
     model = models.CharField('Modelo', max_length=55)
     available_sizes = ArrayField(models.FloatField(max_length=4), verbose_name='Tamanhos Disponiveis', default=list)
 
