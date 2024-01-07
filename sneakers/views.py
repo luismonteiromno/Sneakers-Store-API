@@ -130,3 +130,19 @@ class SneakersViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao buscas o tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
+    def delete_sneaker(self, request):
+        data = request.data
+        user = request.user
+        try:
+            sneaker = Sneakers.objects.get(pk=data['sneaker_id'])
+            if user not in sneaker.brand.owners.all():
+                return Response({'message': 'Somente donos/sócios podem deletar este produto!'}, status=status.HTTP_403_FORBIDDEN)
+            sneaker.delete()
+            return Response({'message': 'Tênis deletado com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Tênis não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao deletar tênis'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
