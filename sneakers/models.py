@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import ArrayField
 
 
 class Brands(models.Model):
+    owners = models.ManyToManyField('users.UserProfile', verbose_name='Donos/Sócios', related_name='users_owners')
     brand_name = models.CharField('Nome da Marca', max_length=120)
 
     def __str__(self):
