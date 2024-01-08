@@ -8,6 +8,7 @@ class BrandsAdmin(admin.ModelAdmin):
 
 class SneakersAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'brand']
+    list_filter = ['brand', 'line']
 
 
 admin.site.register(Sneakers, SneakersAdmin)
