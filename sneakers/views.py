@@ -25,7 +25,8 @@ class SneakersViewSet(ModelViewSet):
             for available_size in available_sizes:
                 sizes.append(available_size)
 
-            if data.get('line_id') != None and data.get('line_id') != ' ' and data.get('line_id') != '':
+            invalids = [None, ' ', '']
+            if data.get('line_id') not in invalids:
                 brand = Brands.objects.get(id=data['brand_id'])
                 line = Lines.objects.get(id=data.get('line_id'))
 
