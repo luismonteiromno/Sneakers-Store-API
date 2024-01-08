@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'sneakers',
-    'users'
+    'users',
+    'purchases'
 ]
 
 MIDDLEWARE = [
