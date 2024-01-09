@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from sneakers.models import Brands
+from sneakers.models import Brands, Sneakers
 
 
 class UserProfile(AbstractUser):
@@ -11,6 +11,8 @@ class UserProfile(AbstractUser):
     cpf = models.CharField('CPF', unique=True, max_length=11)
     email = models.EmailField('Email', unique=True)
     favorite_brands = models.ManyToManyField(Brands, verbose_name='Marcas Favoritas', blank=True)
+    favorite_sneakers = models.ManyToManyField(Sneakers, verbose_name='Tênis Favoritos', blank=True)
+    notification_active = models.BooleanField('Notificações Ativas', default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
