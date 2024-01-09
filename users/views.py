@@ -28,13 +28,29 @@ class UserViewSet(ModelViewSet):
                 full_name=full_name,
                 last_name=data['last_name'],
                 cpf=data['cpf'],
-                email=data['email']
+                email=data['email'],
+                notification_active=data['notification_active']
             )
 
             for favorite_brand in data['favorite_brands']:
                 user.favorite_brands.add(int(favorite_brand))
+
+            for favorite_sneaker in data['favorite_sneakers']:
+                user.favorite_sneakers.add(int(favorite_sneaker))
+
             Token.objects.create(user=user)
             return Response({'message': 'Usuário registrado com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao registrar novo usuário!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def get_user(self, request):
+        user = request.user
+        try:
+            user = UserProfile.objects.get(id=user.id)
+            serializer = UserProfileSerializers(user)
+            return Response({'message': 'Usuário encontrado', 'user': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao exibir perfil do usuário!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
