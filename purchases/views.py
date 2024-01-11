@@ -12,6 +12,8 @@ from sneakers.models import Sneakers
 from .serializers import PurchasesSerializers
 
 from datetime import datetime
+
+
 class PurchasesViewSet(ModelViewSet):
     queryset = Purchases.objects.all()
     serializer_class = PurchasesSerializers
@@ -34,3 +36,13 @@ class PurchasesViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao realizar compra!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def purchases_by_user(self, request):
+        user = request.user
+        try:
+            purchases = Purchases.objects.filter(user=user)
+            serializer = PurchasesSerializers(purchases, many=True)
+            return Response({'message': 'Compras encontradas', 'purchases': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar compras do usuário!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
