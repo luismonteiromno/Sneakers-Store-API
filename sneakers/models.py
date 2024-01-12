@@ -33,6 +33,7 @@ class Sneakers(models.Model):
     brand = models.ForeignKey(Brands, verbose_name='Marca', default='', related_name='sneaker_brand', on_delete=models.CASCADE)
     line = models.ForeignKey(Lines, verbose_name='Pertence a linha', blank=True, null=True, related_name='sneaker_line', on_delete=models.CASCADE)
     model = models.CharField('Modelo', max_length=55)
+    in_stock = models.BooleanField('Em Estoque', default=True)
     available_sizes = ArrayField(models.FloatField(max_length=4), verbose_name='Tamanhos Disponiveis', default=list)
 
     def __str__(self):
