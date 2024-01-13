@@ -30,8 +30,14 @@ class PurchasesViewSet(ModelViewSet):
                 date_purchase=now
             )
             for sneaker in data['sneakers']:
-                purchase.sneaker.add(int(sneaker))
+                sneaker_id = Sneakers.objects.get(id=sneaker)
+                if sneaker_id.in_stock == False:
+                    return Response({'message': 'Um dos tênis escolhidos não está em estoque!'}, status=status.HTTP_400_BAD_REQUEST)
+                purchase.sneaker.add(sneaker_id.id)
+
             return Response({'message': 'Compra efetuada com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Algum dos tênis escolhidos não foi/foram encontrado(s)!'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao realizar compra!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
