@@ -21,6 +21,10 @@ from django.conf import settings
 
 from .routers import router
 
+admin.site.site_title = 'Sneakers Store API'
+admin.site.site_header = 'Sneakers Store Administração'
+admin.site.index_title = 'Administração da Loja'
+
 urlpatterns = [
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
