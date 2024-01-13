@@ -41,6 +41,7 @@ class SneakersViewSet(ModelViewSet):
                     brand_id=data['brand_id'],
                     line_id=data.get('line_id', None),
                     model=data['model'],
+                    in_stock=data['in_stock'],
                     available_sizes=sizes
                 )
 
@@ -52,6 +53,7 @@ class SneakersViewSet(ModelViewSet):
                     brand_id=data['brand_id'],
                     line_id=data.get('line_id', None),
                     model=data['model'],
+                    in_stock=data['in_stock'],
                     available_sizes=sizes
                 )
 
@@ -81,6 +83,7 @@ class SneakersViewSet(ModelViewSet):
                 sneaker.brand_id = data['brand_id']
                 sneaker.line_id = data.get('line_id')
                 sneaker.model = data['model']
+                sneaker.in_stock = data['in_stock']
                 if sneaker.available_sizes != available_sizes:
                     sneaker.available_sizes.clear()
                     for available_size in available_sizes:
@@ -96,6 +99,7 @@ class SneakersViewSet(ModelViewSet):
                 sneaker.brand_id = data['brand_id']
                 sneaker.line_id = data.get('line_id')
                 sneaker.model = data['model']
+                sneaker.in_stock = data['in_stock']
                 if sneaker.available_sizes != available_sizes:
                     sneaker.available_sizes.clear()
                     for available_size in available_sizes:
