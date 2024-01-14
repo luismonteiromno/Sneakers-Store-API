@@ -44,3 +44,15 @@ class Sneakers(models.Model):
         verbose_name_plural = 'Tênis'
 
 
+class Adverts(models.Model):
+    sneaker = models.ForeignKey(Sneakers, verbose_name='Tênis presente no anúncio', related_name='sneaker_advert', on_delete=models.CASCADE)
+    advert = models.ImageField('Anúncio')
+    create_at = models.DateTimeField('Criado em', help_text='OBS: A DATA DE CRIAÇÃO SERVE PARA INDICAR A PARTIR DE QUAL DATA O ANÙNCIO ESTARÁ VALENDO')
+    expiration = models.DateTimeField('Expira em')
+
+    def __str__(self):
+        return self.sneaker.name
+
+    class Meta:
+        verbose_name = 'Anúncio'
+        verbose_name_plural = 'Anúncios'
