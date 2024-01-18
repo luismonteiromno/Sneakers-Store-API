@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
@@ -35,3 +36,16 @@ class TypePaymentsViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao listar tipos de pagamentos'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
+    def delete_type_payment(self, request):
+        data = request.data
+        try:
+            payment = TypePayments.objects.get(id=data['payment_id'])
+            payment.delete()
+            return Response({'message': 'Pagamento deletado com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Pagamento não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao deletar pagamento!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
