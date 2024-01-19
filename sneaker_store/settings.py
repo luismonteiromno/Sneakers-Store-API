@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'sneakers',
     'users',
     'purchases',
-    'type_payments'
+    'type_payments',
+    'store'
 ]
 
 MIDDLEWARE = [
