@@ -63,3 +63,14 @@ class StoreViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao registrar loja!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def user_stores(self, request):
+        user = request.user
+        try:
+            stores = Store.objects.filter(owner=user)
+            serializer = StoreSerializers(stores, many=True)
+            return Response({'message': 'Loja(s) em que o usuário é dono', 'stores': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listas lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
