@@ -5,7 +5,7 @@ from sneakers.models import Brands, Sneakers
 TYPE_USERS = (
     ('client', 'Cliente'),
     ('employee', 'Funcionário'),
-    ('Admin', 'Admin')
+    ('admin', 'Admin')
 )
 
 
