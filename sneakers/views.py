@@ -7,8 +7,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 
 from .models import Sneakers, Brands, Lines, Adverts
-from .serializers import SneakersSerializers
+from .serializers import SneakersSerializers, AdvertsSerializers
 
+from datetime import datetime
 
 class SneakersViewSet(ModelViewSet):
     queryset = Sneakers.objects.all()
@@ -152,3 +153,37 @@ class SneakersViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao deletar tênis'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AdvertsViewSet(ModelViewSet):
+    queryset = Adverts.objects.all()
+    serializer_class = AdvertsSerializers
+    permission_classes = AllowAny
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def create_advert(self, request):
+        data = request.data
+        try:
+            create_at = datetime.strptime(data['create_at'], '%d/%m/%Y %H:%M')
+            expiration = datetime.strptime(data['expiration'], '%d/%m/%Y %H:%M')
+            Adverts.objects.create(
+                sneaker_id=data['sneaker_id'],
+                advert=data['advert'],
+                create_at=create_at,
+                expiration=expiration
+            )
+            return Response({'message': 'Anúncio criado com sucesso'}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao criar anúncio!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def list_adverts(self, request):
+        now = datetime.now()
+        try:
+            adverts = Adverts.objects.filter(create_at__lte=now, expiration__gte=now)
+            serializer = AdvertsSerializers(adverts, many=True)
+            return Response({'message': 'Anúncios encontrados', 'adverts': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar anúncios'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
