@@ -166,12 +166,17 @@ class AdvertsViewSet(ModelViewSet):
         try:
             create_at = datetime.strptime(data['create_at'], '%d/%m/%Y %H:%M')
             expiration = datetime.strptime(data['expiration'], '%d/%m/%Y %H:%M')
-            Adverts.objects.create(
-                sneaker_id=data['sneaker_id'],
+            if create_at >= expiration:
+                return Response({'message': 'A data de criação não pode ser maior/igual a data de expiração!'}, status=status.HTTP_400_BAD_REQUEST)
+            advert = Adverts.objects.create(
                 advert=data['advert'],
+                description=data['description'],
                 create_at=create_at,
                 expiration=expiration
             )
+            for sneaker in data['sneakers'].split(','):
+                advert.sneaker.add(sneaker)
+
             return Response({'message': 'Anúncio criado com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
