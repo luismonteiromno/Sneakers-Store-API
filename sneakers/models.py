@@ -45,13 +45,14 @@ class Sneakers(models.Model):
 
 
 class Adverts(models.Model):
-    sneaker = models.ForeignKey(Sneakers, verbose_name='Tênis presente no anúncio', related_name='sneaker_advert', on_delete=models.CASCADE)
+    sneaker = models.ManyToManyField(Sneakers, verbose_name='Tênis presente no anúncio', related_name='sneaker_advert')
     advert = models.ImageField('Anúncio')
+    description = models.TextField('Descrição do Anúncio', max_length=255, blank=True, null=True)
     create_at = models.DateTimeField('Criado em', help_text='OBS: A DATA DE CRIAÇÃO SERVE PARA INDICAR A PARTIR DE QUAL DATA O ANÙNCIO ESTARÁ VALENDO')
     expiration = models.DateTimeField('Expira em')
 
     def __str__(self):
-        return self.sneaker.name
+        return str(self.advert) + str(self.create_at) + str(self.expiration)
 
     class Meta:
         verbose_name = 'Anúncio'
