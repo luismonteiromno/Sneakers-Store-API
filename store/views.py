@@ -28,6 +28,23 @@ class StoreViewSet(ModelViewSet):
                 if Store.objects.filter(cnpj=data['cnpj']).exists():
                     return Response({'message': 'Este CNPJ pertence não existe ou pertence a outra empresa!'}, status=status.HTTP_400_BAD_REQUEST)
 
+                if data['delivery'] == True and (
+                        data['minimum_delivery'] in invalids_values or data['maximum_delivery'] in invalids_values
+                ):
+                    return Response({'message': 'O campo tempo minímo/máximo de entrega deve ser preenchido!'}, status=status.HTTP_400_BAD_REQUEST)
+
+                if data['delivery'] == False and (
+                        data['minimum_delivery'] not in invalids_values or data['maximum_delivery'] not in invalids_values
+                ):
+                    return Response({'message': 'Preencha o campo de Entrega que os campos de tempo minímo/máximo de entrega possa(m) ser preenchido(s)!'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                if data['minimum_delivery'] not in invalids_values and data['maximum_delivery'] not in invalids_values and (
+                        data['minimum_delivery'] >= data['maximum_delivery']
+                ):
+                    return Response({'message': 'Preencha o campo tempo minímo/máximo de entrega corretamente!'}
+                                    , status=status.HTTP_400_BAD_REQUEST)
+
                 store = Store.objects.create(
                     name=data['name'],
                     street=data['street'],
@@ -38,6 +55,9 @@ class StoreViewSet(ModelViewSet):
                     facebook=data.get('facebook'),
                     instagram=data.get('instagram'),
                     whatsapp=data.get('whatsapp'),
+                    delivery=data['delivery'],
+                    minimum_delivery=data['minimum_delivery'],
+                    maximum_delivery=data['maximum_delivery']
                 )
                 if data['owners'] not in invalids_values:
                     for owner in data['owners']:
