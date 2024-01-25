@@ -1,4 +1,10 @@
 from django.contrib import admin
 from .models import Purchases
 
-admin.site.register(Purchases)
+
+class PurchasesAdmin(admin.ModelAdmin):
+    list_display = ['user', 'date_purchase']
+
+
+admin.site.register(Purchases, PurchasesAdmin)
+
