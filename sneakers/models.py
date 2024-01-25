@@ -27,6 +27,7 @@ class Lines(models.Model):
 
 
 class Sneakers(models.Model):
+    stores = models.ForeignKey('store.Store', verbose_name='Lojas disponiveis', related_name='stores_sneakers', on_delete=models.CASCADE)
     photo = models.ImageField('Foto')
     name = models.CharField('Nome', max_length=255)
     price = models.FloatField('Preço')
