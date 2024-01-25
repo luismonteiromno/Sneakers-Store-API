@@ -11,6 +11,8 @@ from users.models import UserProfile
 from sneakers.models import Sneakers
 from .serializers import PurchasesSerializers
 
+from type_payments.models import TypePayments
+
 from datetime import datetime
 
 
@@ -25,14 +27,26 @@ class PurchasesViewSet(ModelViewSet):
         user = request.user
         data = request.data
         try:
+            try:
+                type_payment = TypePayments.objects.get(id=data['type_payment'])
+            except Exception as error_payment:
+                print(error_payment)
+                return Response({'message': 'Tipo de pagamento não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+
             purchase = Purchases.objects.create(
                 user_id=user.id,
-                date_purchase=now
+                date_purchase=now,
+                type_payment_id=type_payment.id
             )
             for sneaker in data['sneakers']:
                 sneaker_id = Sneakers.objects.get(id=sneaker)
+
+                if type_payment not in sneaker_id.stores.type_payments.all():
+                    return Response({'message': 'Esse tipo de pagamento não é aceito pela loja!'}, status=status.HTTP_403_FORBIDDEN)
+
                 if sneaker_id.in_stock == False:
                     return Response({'message': 'Um dos tênis escolhidos não está em estoque!'}, status=status.HTTP_400_BAD_REQUEST)
+
                 purchase.sneaker.add(sneaker_id.id)
 
             return Response({'message': 'Compra efetuada com sucesso'}, status=status.HTTP_200_OK)
