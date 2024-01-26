@@ -36,10 +36,13 @@ class PurchasesViewSet(ModelViewSet):
             purchase = Purchases.objects.create(
                 user_id=user.id,
                 date_purchase=now,
-                type_payment_id=type_payment.id
+                type_payment_id=type_payment.id,
             )
             for sneaker in data['sneakers']:
                 sneaker_id = Sneakers.objects.get(id=sneaker)
+
+                if data['sneaker_size'] not in sneaker_id.available_sizes:
+                    return Response({'message': 'O tamanho selecionado não está disponível!'}, status=status.HTTP_400_BAD_REQUEST)
 
                 if type_payment not in sneaker_id.stores.type_payments.all():
                     return Response({'message': 'Esse tipo de pagamento não é aceito pela loja!'}, status=status.HTTP_403_FORBIDDEN)
@@ -47,7 +50,9 @@ class PurchasesViewSet(ModelViewSet):
                 if sneaker_id.in_stock == False:
                     return Response({'message': 'Um dos tênis escolhidos não está em estoque!'}, status=status.HTTP_400_BAD_REQUEST)
 
+                purchase.sneaker_size = data['sneaker_size']
                 purchase.sneaker.add(sneaker_id.id)
+                purchase.save()
 
             return Response({'message': 'Compra efetuada com sucesso'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
