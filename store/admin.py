@@ -3,6 +3,7 @@ from .models import Store
 
 
 class StoreAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
     filter_horizontal = ['owner', 'products', 'type_payments']
 
 
