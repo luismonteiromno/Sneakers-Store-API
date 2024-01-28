@@ -18,6 +18,8 @@ class Store(models.Model):
     owner = models.ManyToManyField(UserProfile, verbose_name='Dono(s)', related_name='onwers_store')
     products = models.ManyToManyField(Sneakers, verbose_name='Tênis Disponiveis', related_name='sneakers_store')
     type_payments = models.ManyToManyField(TypePayments, verbose_name='Tipos de Pagamentos Aceitáveis', related_name='type_payments_store')
+    opening_time = models.TimeField('Horário de abertura', default='08:00')
+    closing_time = models.TimeField('Horário de fechamento', default='21:00')
     delivery = models.BooleanField('Faz entrega', default=False)
     minimum_delivery = models.IntegerField('Tempo minímo de entrega', default=0, blank=True, null=True)
     maximum_delivery = models.IntegerField('Tempo máximo de entrega', default=60, blank=True, null=True)
