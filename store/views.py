@@ -21,6 +21,8 @@ class StoreViewSet(ModelViewSet):
         user = request.user
         try:
             if user.type_user == 'admin':
+                opening_time = data['opening_time']
+                closing_time = data['closing_time']
                 invalids_values = [None, ' ', '']
                 if Store.objects.filter(email=data['email']).exists():
                     return Response({'message': 'Este email já está sendo utilizado!'}, status=status.HTTP_400_BAD_REQUEST)
@@ -45,6 +47,9 @@ class StoreViewSet(ModelViewSet):
                     return Response({'message': 'Preencha o campo tempo minímo/máximo de entrega corretamente!'}
                                     , status=status.HTTP_400_BAD_REQUEST)
 
+                if closing_time >= opening_time:
+                    return Response({'message': 'O horário de encerramento não pode ser maior/igual ao de abertura'}, status=status.HTTP_400_BAD_REQUEST)
+
                 store = Store.objects.create(
                     name=data['name'],
                     street=data['street'],
@@ -55,6 +60,8 @@ class StoreViewSet(ModelViewSet):
                     facebook=data.get('facebook'),
                     instagram=data.get('instagram'),
                     whatsapp=data.get('whatsapp'),
+                    opening_time=opening_time,
+                    closing_time=closing_time,
                     delivery=data['delivery'],
                     minimum_delivery=data['minimum_delivery'],
                     maximum_delivery=data['maximum_delivery']
