@@ -11,6 +11,7 @@ from .serializers import SneakersSerializers, AdvertsSerializers
 
 from datetime import datetime
 
+
 class SneakersViewSet(ModelViewSet):
     queryset = Sneakers.objects.all()
     serializer_class = SneakersSerializers
@@ -36,25 +37,25 @@ class SneakersViewSet(ModelViewSet):
                                     status=status.HTTP_400_BAD_REQUEST)
 
                 Sneakers.objects.create(
+                    stores_id=data['store_id'],
                     photo=data['photo'],
                     name=data['name'],
                     price=data['price'],
                     brand_id=data['brand_id'],
                     line_id=data.get('line_id', None),
                     model=data['model'],
-                    in_stock=data['in_stock'],
                     available_sizes=sizes
                 )
 
             else:
                 Sneakers.objects.create(
+                    stores_id=data['store_id'],
                     photo=data['photo'],
                     name=data['name'],
                     price=data['price'],
                     brand_id=data['brand_id'],
                     line_id=data.get('line_id', None),
                     model=data['model'],
-                    in_stock=data['in_stock'],
                     available_sizes=sizes
                 )
 
