@@ -13,7 +13,7 @@ class UserProfile(AbstractUser):
     username = models.CharField('Nome de Usuário')
     first_name = models.CharField('Nome', max_length=100)
     last_name = models.CharField('Sobrenome', max_length=100)
-    full_name = models.CharField('Nome completo', max_length=200)
+    full_name = models.CharField('Nome completo', max_length=200, blank=True, null=True)
     cpf = models.CharField('CPF', unique=True, max_length=11)
     email = models.EmailField('Email', unique=True)
     type_user = models.CharField('Tipo do Usuário', choices=TYPE_USERS)
