@@ -9,6 +9,11 @@ from rest_framework.decorators import action
 from .models import Store
 from .serializers import StoreSerializers
 
+from users.models import UserProfile
+from sneakers.models import Sneakers
+
+from datetime import datetime
+
 
 class StoreViewSet(ModelViewSet):
     queryset = Store.objects.all()
@@ -47,7 +52,7 @@ class StoreViewSet(ModelViewSet):
                     return Response({'message': 'Preencha o campo tempo minímo/máximo de entrega corretamente!'}
                                     , status=status.HTTP_400_BAD_REQUEST)
 
-                if closing_time >= opening_time:
+                if opening_time >= closing_time:
                     return Response({'message': 'O horário de encerramento não pode ser maior/igual ao de abertura'}, status=status.HTTP_400_BAD_REQUEST)
 
                 store = Store.objects.create(
@@ -68,6 +73,7 @@ class StoreViewSet(ModelViewSet):
                 )
                 if data['owners'] not in invalids_values:
                     for owner in data['owners']:
+                        store.owner.add(user)
                         store.owner.add(owner)
                 else:
                     return Response({'message': 'Há um valor inválido no registro do(s) dono(s)!'}, status=status.HTTP_400_BAD_REQUEST)
@@ -96,6 +102,8 @@ class StoreViewSet(ModelViewSet):
         user = request.user
         data = request.data
         try:
+            opening_time = data['opening_time']
+            closing_time = data['closing_time']
             invalids_values = [None, ' ', '']
             store = Store.objects.get(id=data['store_id'])
             if user in store.owner.all():
@@ -121,11 +129,20 @@ class StoreViewSet(ModelViewSet):
                 if data['owners'] != store.owner:
                     store.owner.clear()
                     for owner in data['owners']:
+                        owners = UserProfile.objects.get(id=owner)
+                        if owners.type_user != 'admin':
+                            return Response({'message': 'Somente administradores podem ser adicionados como donos!'},
+                                            status=status.HTTP_400_BAD_REQUEST)
+                        store.owner.add(user)
                         store.owner.add(owner)
 
                 if data['products'] != store.products:
                     store.products.clear()
                     for product in data['products']:
+                        products = Sneakers.objects.get(id=product)
+                        if products.in_stock is False:
+                            return Response({'message': f'Algum(ns) do(s) produto(s) selecionado(s) não está(ão) em estoque!'},
+                                            status=status.HTTP_400_BAD_REQUEST)
                         store.products.add(product)
 
                 if data['type_payments'] != store.type_payments:
@@ -133,6 +150,11 @@ class StoreViewSet(ModelViewSet):
                     for type_payment in data['type_payments']:
                         store.type_payments.add(type_payment)
 
+                if opening_time >= closing_time:
+                    return Response({'message': 'O horário de encerramento não pode ser maior/igual ao de abertura'}, status=status.HTTP_400_BAD_REQUEST)
+
+                store.opening_time = opening_time
+                store.closing_time = closing_time
                 store.delivery = data['delivery']
                 store.minimum_delivery = data['minimum_delivery']
                 store.maximum_delivery = data['maximum_delivery']
@@ -174,3 +196,38 @@ class StoreViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao listas lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def stores_open(self, request):
+        now = datetime.now()
+        try:
+            stores = Store.objects.filter(opening_time__lte=now, closing_time__gte=now)
+            serializer = StoreSerializers(stores, many=True)
+            return Response({'message': 'Loja(s) aberta(s) agora', 'stores': serializer.data},
+                            status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listas lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def stores_deliver(self, request):
+        now = datetime.now()
+        params = request.query_params
+        minimum = int(params['minimum_delivery'])
+        maximum = int(params['maximum_delivery'])
+        try:
+            if minimum >= maximum:
+                return Response({'message': 'O tempo minimo de entrega não pode ser maior/igual ao tempo máximo!'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            stores = Store.objects.filter(
+                opening_time__lte=now,
+                closing_time__gte=now,
+                delivery=True,
+                minimum_delivery__lte=minimum,
+                maximum_delivery__gte=maximum
+            )
+            serializer = StoreSerializers(stores, many=True)
+            return Response({'message': 'Loja(s) que realiza(m) entrega', 'stores': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
