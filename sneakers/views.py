@@ -7,10 +7,90 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 
 from .models import Sneakers, Brands, Lines, Adverts
-from .serializers import SneakersSerializers, AdvertsSerializers
+from .serializers import SneakersSerializers, AdvertsSerializers, BrandsSerializers, LinesSerializers
+
+from users.models import UserProfile
 
 from datetime import datetime
 
+
+class BrandsViewSet(ModelViewSet):
+    queryset = Brands.objects.all()
+    serializer_class = BrandsSerializers
+    permission_classes = IsAuthenticated
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def register_brand(self, request):
+        user = request.user
+        data = request.data
+        try:
+            brand = Brands.objects.create(
+                brand_name=data['brand_name']
+            )
+            for owners in data['owners']:
+                owner = UserProfile.objects.get(id=owners)
+                if owner.type_user != 'admin':
+                    return Response({'message': 'Somente administradores podem ser adicionados!'}, status=status.HTTP_400_BAD_REQUEST)
+                brand.owners.add(user)
+                brand.owners.add(int(owners))
+
+            return Response({'message': 'Marca registrada com sucesso'}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao adicionar marca!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def list_brands(self, request):
+        try:
+            brands = Brands.objects.all()
+            serializer = BrandsSerializers(brands, many=True)
+            return Response({'message': 'Marcas encontradas', 'brands': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar marcas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def brands_by_user(self, request):
+        params = request.query_params
+        try:
+            brands = Brands.objects.get(owners=params['user_id'])
+            serializer = BrandsSerializers(brands, many=True)
+            return Response({'message': 'Marcas encontradas', 'brands': serializer.data}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Usuário não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar marcas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def user_brands(self, request):
+        user = request.user
+        try:
+            brands = Brands.objects.filter(owners=user)
+            serializer = BrandsSerializers(brands, many=True)
+            return Response({'message': 'Marcas encontradas', 'brands': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar marcas!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['DELETE'], permission_classes=[AllowAny])
+    def exclude_brand(self, request):
+        data = request.data
+        user = request.user
+        try:
+            brand = Brands.objects.get(id=data['brand_id'])
+            if user not in brand.owners.all():
+                return Response({'message': 'Somente administradores podem realizar está ação!'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+            brand.delete()
+            return Response({'message': 'Marca deletada com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Marca não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao deletar marca!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class SneakersViewSet(ModelViewSet):
     queryset = Sneakers.objects.all()
