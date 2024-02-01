@@ -39,6 +39,35 @@ class BrandsViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao adicionar marca!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
+    def update_brand(self, request):
+        user = request.user
+        data = request.data
+        try:
+
+            brand = Brands.objects.get(pk=data['brand_id'])
+            if user.type_user != 'admin':
+                return Response({'message': 'Somente administradores podem ser adicionados!'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            brand.brand_name = data['brand_name']
+
+            if brand.owners != data['owners']:
+                for owners in data['owners']:
+                    owner = UserProfile.objects.get(id=owners)
+                    if owner.type_user != 'admin':
+                        return Response({'message': 'Somente administradores podem ser adicionados!'},
+                                        status=status.HTTP_400_BAD_REQUEST)
+                    brand.owners.add(user)
+                    brand.owners.add(int(owners))
+
+            brand.save()
+            return Response({'message': 'Marca atualizada com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Marca não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao atualizar marca!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def list_brands(self, request):
         try:
@@ -91,6 +120,7 @@ class BrandsViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao deletar marca!'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class SneakersViewSet(ModelViewSet):
     queryset = Sneakers.objects.all()
