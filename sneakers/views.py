@@ -122,6 +122,25 @@ class BrandsViewSet(ModelViewSet):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class LinesViewSet(ModelViewSet):
+    queryset = Lines.objects.all()
+    serializer_class = LinesSerializers
+    permission_classes = IsAuthenticated
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def register_line(self, request):
+        data = request.data
+        try:
+            Lines.objects.create(
+                brand_id=data['brand_id'],
+                create_line=data['line_name']
+            )
+            return Response({'message': 'Linha registrada com sucesso'}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao registrar linha de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class SneakersViewSet(ModelViewSet):
     queryset = Sneakers.objects.all()
     serializer_class = SneakersSerializers
