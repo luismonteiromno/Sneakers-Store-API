@@ -11,6 +11,7 @@ class BrandsSerializers(serializers.ModelSerializer):
 
 class LinesSerializers(serializers.ModelSerializer):
     class Meta:
+        depth = 2
         model = Lines
         fields = '__all__'
 

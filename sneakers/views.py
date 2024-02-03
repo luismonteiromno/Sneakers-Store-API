@@ -130,15 +130,63 @@ class LinesViewSet(ModelViewSet):
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def register_line(self, request):
         data = request.data
+        user = request.user
         try:
+            brand = Brands.objects.get(pk=data['brand_id'])
+            if user not in brand.owners.all():
+                return Response({'message': 'Somente donos/sócios podem realizar está ação!'}, status=status.HTTP_401_UNAUTHORIZED)
+
             Lines.objects.create(
-                brand_id=data['brand_id'],
+                brand_line_id=brand.id,
                 create_line=data['line_name']
             )
             return Response({'message': 'Linha registrada com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Marca não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao registrar linha de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
+    def update_line(self, request):
+        data = request.data
+        user = request.user
+        try:
+            line = Lines.objects.get(id=data['line_id'])
+            if user not in line.brand_line.owners.all():
+                return Response({'message': 'Somente donos/sócios podem realizar está ação!'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+            line.brand_line.id = data['brand_id']
+            line.create_line = data['line_name']
+
+            line.save()
+            return Response({'message': 'Linha atualizada com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Linha de tênis não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao atualizar linha de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def list_all_lines(self, request):
+        try:
+            lines = Lines.objects.all().order_by('id')
+            serializer = LinesSerializers(lines, many=True)
+            return Response({'message': 'Linhas de tênis encontradas', 'lines': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar linhas de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def lines_by_brand(self, request):
+        params = request.query_params
+        try:
+            lines = Lines.objects.filter(brand_line_id=params['brand_id'])
+            serializer = LinesSerializers(lines, many=True)
+            return Response({'message': 'Linhas encontradas', 'lines': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar linhas de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SneakersViewSet(ModelViewSet):
