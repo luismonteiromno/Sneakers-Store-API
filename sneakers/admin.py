@@ -5,7 +5,12 @@ from django.forms import ValidationError
 
 
 class BrandsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'brand_name']
     filter_horizontal = ['owners']
+
+
+class LinesAdmin(admin.ModelAdmin):
+    list_display = ['id', 'create_line']
 
 
 class SneakersAdmin(admin.ModelAdmin):
@@ -33,5 +38,5 @@ class AdvertsAdmin(admin.ModelAdmin):
 
 admin.site.register(Sneakers, SneakersAdmin)
 admin.site.register(Brands, BrandsAdmin)
-admin.site.register(Lines)
+admin.site.register(Lines, LinesAdmin)
 admin.site.register(Adverts, AdvertsAdmin)
