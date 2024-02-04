@@ -181,12 +181,26 @@ class LinesViewSet(ModelViewSet):
     def lines_by_brand(self, request):
         params = request.query_params
         try:
-            lines = Lines.objects.filter(brand_line_id=params['brand_id'])
+            lines = Lines.objects.filter(brand_line__brand_name__iexact=params['brand_name'])
             serializer = LinesSerializers(lines, many=True)
             return Response({'message': 'Linhas encontradas', 'lines': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao listar linhas de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def exclude_line(self, request):
+        data = request.data
+        try:
+            line = Lines.objects.get(id=data['line_id'])
+            line.delete()
+            return Response({'message': 'Linha deletada com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Linha de tênis não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao deletar linha de tênis!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SneakersViewSet(ModelViewSet):
