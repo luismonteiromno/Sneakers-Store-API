@@ -210,6 +210,23 @@ class StoreViewSet(ModelViewSet):
             return Response({'message': 'Erro ao listas lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def filter_stores_by_times(self, request):
+        params = request.query_params
+        try:
+            opening_time = params['opening_time']
+            closing_time = params['closing_time']
+
+            if opening_time >= closing_time:
+                return Response({'message': 'O horário de abertura não pode ser maior/igual ao de encerramento'}, status=status.HTTP_400_BAD_REQUEST)
+
+            lines = Store.objects.filter(opening_time__gte=opening_time, closing_time__lte=closing_time)
+            serializer = StoreSerializers(lines, many=True)
+            return Response({'message': 'Lojas encontradas', 'stores': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def stores_deliver(self, request):
         now = datetime.now()
         params = request.query_params
