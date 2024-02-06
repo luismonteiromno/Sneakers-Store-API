@@ -16,10 +16,10 @@ class Brands(models.Model):
 
 class Lines(models.Model):
     brand_line = models.ForeignKey(Brands, verbose_name='Linha da Marca', related_name='brand_line', on_delete=models.CASCADE)
-    create_line = models.CharField('Criar Linha', max_length=50)
+    name_line = models.CharField('Nome da Linha', max_length=50)
 
     def __str__(self):
-        return self.create_line
+        return self.name_line
 
     class Meta:
         verbose_name = 'Linha de Tênis'
