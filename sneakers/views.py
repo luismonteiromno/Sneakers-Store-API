@@ -138,7 +138,7 @@ class LinesViewSet(ModelViewSet):
 
             Lines.objects.create(
                 brand_line_id=brand.id,
-                create_line=data['line_name']
+                name_line=data['line_name']
             )
             return Response({'message': 'Linha registrada com sucesso'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
@@ -157,7 +157,7 @@ class LinesViewSet(ModelViewSet):
                 return Response({'message': 'Somente donos/sócios podem realizar está ação!'},
                                 status=status.HTTP_401_UNAUTHORIZED)
             line.brand_line.id = data['brand_id']
-            line.create_line = data['line_name']
+            line.name_line = data['line_name']
 
             line.save()
             return Response({'message': 'Linha atualizada com sucesso'}, status=status.HTTP_200_OK)
@@ -188,7 +188,7 @@ class LinesViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao listar linhas de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['DELETE'], permission_classes=[AllowAny])
     def exclude_line(self, request):
         data = request.data
         try:

@@ -10,7 +10,7 @@ class BrandsAdmin(admin.ModelAdmin):
 
 
 class LinesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'create_line']
+    list_display = ['id', 'name_line']
 
 
 class SneakersAdmin(admin.ModelAdmin):
