@@ -356,6 +356,7 @@ class AdvertsViewSet(ModelViewSet):
     def create_advert(self, request):
         data = request.data
         try:
+            users = UserProfile.objects.all()
             create_at = datetime.strptime(data['create_at'], '%d/%m/%Y %H:%M')
             expiration = datetime.strptime(data['expiration'], '%d/%m/%Y %H:%M')
             if create_at >= expiration:
@@ -368,6 +369,11 @@ class AdvertsViewSet(ModelViewSet):
             )
             for sneaker in data['sneakers'].split(','):
                 advert.sneaker.add(sneaker)
+                # for user in users:
+                #     print(sneaker)
+                #     print(user.favorite_sneakers.all())
+                #     if sneaker in user.favorite_sneakers.all():
+                #         print('bau')
 
             return Response({'message': 'Anúncio criado com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
