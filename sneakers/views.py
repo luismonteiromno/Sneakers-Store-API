@@ -12,6 +12,7 @@ from .serializers import SneakersSerializers, AdvertsSerializers, BrandsSerializ
 from users.models import UserProfile
 
 from datetime import datetime
+from utils import send_email
 
 
 class BrandsViewSet(ModelViewSet):
@@ -30,7 +31,8 @@ class BrandsViewSet(ModelViewSet):
             for owners in data['owners']:
                 owner = UserProfile.objects.get(id=owners)
                 if owner.type_user != 'admin':
-                    return Response({'message': 'Somente administradores podem ser adicionados!'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'message': 'Somente administradores podem ser adicionados!'},
+                                    status=status.HTTP_400_BAD_REQUEST)
                 brand.owners.add(user)
                 brand.owners.add(int(owners))
 
@@ -134,7 +136,8 @@ class LinesViewSet(ModelViewSet):
         try:
             brand = Brands.objects.get(pk=data['brand_id'])
             if user not in brand.owners.all():
-                return Response({'message': 'Somente donos/sócios podem realizar está ação!'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'message': 'Somente donos/sócios podem realizar está ação!'},
+                                status=status.HTTP_401_UNAUTHORIZED)
 
             Lines.objects.create(
                 brand_line_id=brand.id,
@@ -145,7 +148,8 @@ class LinesViewSet(ModelViewSet):
             return Response({'message': 'Marca não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erro ao registrar linha de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao registrar linha de tênis!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['PATCH'], permission_classes=[IsAuthenticated])
     def update_line(self, request):
@@ -165,17 +169,20 @@ class LinesViewSet(ModelViewSet):
             return Response({'message': 'Linha de tênis não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erro ao atualizar linha de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao atualizar linha de tênis!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def list_all_lines(self, request):
         try:
             lines = Lines.objects.all().order_by('id')
             serializer = LinesSerializers(lines, many=True)
-            return Response({'message': 'Linhas de tênis encontradas', 'lines': serializer.data}, status=status.HTTP_200_OK)
+            return Response({'message': 'Linhas de tênis encontradas', 'lines': serializer.data},
+                            status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erro ao listar linhas de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao listar linhas de tênis!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def lines_by_brand(self, request):
@@ -186,7 +193,8 @@ class LinesViewSet(ModelViewSet):
             return Response({'message': 'Linhas encontradas', 'lines': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
-            return Response({'message': 'Erro ao listar linhas de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Erro ao listar linhas de tênis!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['DELETE'], permission_classes=[AllowAny])
     def exclude_line(self, request):
@@ -337,7 +345,8 @@ class SneakersViewSet(ModelViewSet):
         try:
             sneaker = Sneakers.objects.get(pk=data['sneaker_id'])
             if user not in sneaker.brand.owners.all():
-                return Response({'message': 'Somente donos/sócios podem deletar este produto!'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'message': 'Somente donos/sócios podem deletar este produto!'},
+                                status=status.HTTP_403_FORBIDDEN)
             sneaker.delete()
             return Response({'message': 'Tênis deletado com sucesso'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
@@ -360,7 +369,8 @@ class AdvertsViewSet(ModelViewSet):
             create_at = datetime.strptime(data['create_at'], '%d/%m/%Y %H:%M')
             expiration = datetime.strptime(data['expiration'], '%d/%m/%Y %H:%M')
             if create_at >= expiration:
-                return Response({'message': 'A data de criação não pode ser maior/igual a data de expiração!'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'A data de criação não pode ser maior/igual a data de expiração!'},
+                                status=status.HTTP_400_BAD_REQUEST)
             advert = Adverts.objects.create(
                 advert=data['advert'],
                 description=data['description'],
@@ -369,11 +379,14 @@ class AdvertsViewSet(ModelViewSet):
             )
             for sneaker in data['sneakers'].split(','):
                 advert.sneaker.add(sneaker)
-                # for user in users:
-                #     print(sneaker)
-                #     print(user.favorite_sneakers.all())
-                #     if sneaker in user.favorite_sneakers.all():
-                #         print('bau')
+                for user in users:
+                    if user.notification_active == True:
+                        sneakers = Sneakers.objects.get(id=sneaker)
+                        if sneakers in user.favorite_sneakers.all():
+                            print(send_email(user.email,
+                                       'Nova anúncio de um dos seus tênis favoritos!',
+                                       f"O(s) tênis {sneakers} possue(m) um novo anúncio!"
+                                       ))
 
             return Response({'message': 'Anúncio criado com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
