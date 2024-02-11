@@ -201,7 +201,10 @@ class StoreViewSet(ModelViewSet):
     def stores_open(self, request):
         now = datetime.now()
         try:
-            stores = Store.objects.filter(opening_time__lte=now, closing_time__gte=now)
+            stores = list(Store.objects.filter(opening_time__lte=now, closing_time__gte=now))
+            if stores == []:
+                return Response({'message': 'Não a nenhuma loja aberta no momento!'}, status=status.HTTP_404_NOT_FOUND)
+
             serializer = StoreSerializers(stores, many=True)
             return Response({'message': 'Loja(s) aberta(s) agora', 'stores': serializer.data},
                             status=status.HTTP_200_OK)
