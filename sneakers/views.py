@@ -10,6 +10,7 @@ from .models import Sneakers, Brands, Lines, Adverts
 from .serializers import SneakersSerializers, AdvertsSerializers, BrandsSerializers, LinesSerializers
 
 from users.models import UserProfile
+from notifications.models import Notifications
 
 from datetime import datetime
 from utils import send_email
@@ -383,10 +384,11 @@ class AdvertsViewSet(ModelViewSet):
                     if user.notification_active == True:
                         sneakers = Sneakers.objects.get(id=sneaker)
                         if sneakers in user.favorite_sneakers.all():
-                            print(send_email(user.email,
-                                       'Nova anúncio de um dos seus tênis favoritos!',
-                                       f"O(s) tênis {sneakers} possue(m) um novo anúncio!"
-                                       ))
+                            Notifications.objects.create(
+                                email=user.email,
+                                subject='Nova anúncio de um dos seus tênis favoritos!',
+                                message=f"O(s) tênis {sneakers} possue(m) um novo anúncio!"
+                            )
 
             return Response({'message': 'Anúncio criado com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
