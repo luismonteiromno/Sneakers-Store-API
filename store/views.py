@@ -251,3 +251,20 @@ class StoreViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao listar lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
+    def exclude_store(self, request):
+        data = request.data
+        user = request.user
+        try:
+            store = Store.objects.get(pk=data['store_id'])
+            if user not in store.owner.all() or user.type_user != 'admin':
+                return Response({'message': 'Somente os donos podem realizar está ação'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            store.delete()
+            return Response({'message': 'Loja deletada com sucesso'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Loja não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao deletar loja!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
