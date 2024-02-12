@@ -23,19 +23,20 @@ class BrandsViewSet(ModelViewSet):
 
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def register_brand(self, request):
-        user = request.user
         data = request.data
         try:
             brand = Brands.objects.create(
                 brand_name=data['brand_name']
             )
+            if data['owners'] == []:
+                return Response({'message': 'Preencha o campo de donos corretamente!'}, status=status.HTTP_400_BAD_REQUEST)
+
             for owners in data['owners']:
                 owner = UserProfile.objects.get(id=owners)
                 if owner.type_user != 'admin':
                     return Response({'message': 'Somente administradores podem ser adicionados!'},
                                     status=status.HTTP_400_BAD_REQUEST)
-                brand.owners.add(user)
-                brand.owners.add(int(owners))
+                brand.owners.add(owners)
 
             return Response({'message': 'Marca registrada com sucesso'}, status=status.HTTP_200_OK)
         except Exception as error:
@@ -60,8 +61,7 @@ class BrandsViewSet(ModelViewSet):
                     if owner.type_user != 'admin':
                         return Response({'message': 'Somente administradores podem ser adicionados!'},
                                         status=status.HTTP_400_BAD_REQUEST)
-                    brand.owners.add(user)
-                    brand.owners.add(int(owners))
+                    brand.owners.add(owners)
 
             brand.save()
             return Response({'message': 'Marca atualizada com sucesso'}, status=status.HTTP_200_OK)
@@ -244,6 +244,7 @@ class SneakersViewSet(ModelViewSet):
                     brand_id=data['brand_id'],
                     line_id=data.get('line_id', None),
                     model=data['model'],
+                    in_stock=data['in_stock'],
                     available_sizes=sizes
                 )
 
@@ -256,6 +257,7 @@ class SneakersViewSet(ModelViewSet):
                     brand_id=data['brand_id'],
                     line_id=data.get('line_id', None),
                     model=data['model'],
+                    in_stock=data['in_stock'],
                     available_sizes=sizes
                 )
 
@@ -319,7 +321,7 @@ class SneakersViewSet(ModelViewSet):
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def list_sneakers(self, request):
         try:
-            sneakers = Sneakers.objects.all()
+            sneakers = Sneakers.objects.filter(in_stock=True)
             serializer = SneakersSerializers(sneakers, many=True)
             return Response({'message': 'Tênis encontrados', 'sneakers': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:

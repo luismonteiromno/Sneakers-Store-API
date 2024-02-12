@@ -18,7 +18,7 @@ class LinesSerializers(serializers.ModelSerializer):
 
 class SneakersSerializers(serializers.ModelSerializer):
     class Meta:
-        depth = 1
+        depth = 3
         model = Sneakers
         fields = '__all__'
 
