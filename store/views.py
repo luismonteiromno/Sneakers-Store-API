@@ -197,6 +197,20 @@ class StoreViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao listas lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def store_by_id(self, request):
+        params = request.query_params
+        try:
+            stores = Store.objects.get(pk=params['store_id'])
+            serializer = StoreSerializers(stores)
+            return Response({'message': 'Loja encontrada', 'stores': serializer.data},
+                            status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'message': 'Loja não encontrada!'}, status=status.HTTP_404_NOT_FOUNDJ)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar loja!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def stores_open(self, request):
         now = datetime.now()

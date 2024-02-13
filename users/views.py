@@ -93,3 +93,13 @@ class UserViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao exibir perfil do usuário!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
+    def delete_user(self, request):
+        user = request.user
+        try:
+            user = UserProfile.objects.get(id=user.id)
+            user.delete()
+            return Response({'message': 'Usuário deletado com sucesso'}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao deletar usuário!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
