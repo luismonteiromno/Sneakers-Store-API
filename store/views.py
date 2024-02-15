@@ -206,7 +206,7 @@ class StoreViewSet(ModelViewSet):
             return Response({'message': 'Loja encontrada', 'stores': serializer.data},
                             status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
-            return Response({'message': 'Loja não encontrada!'}, status=status.HTTP_404_NOT_FOUNDJ)
+            return Response({'message': 'Loja não encontrada!'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao listar loja!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
