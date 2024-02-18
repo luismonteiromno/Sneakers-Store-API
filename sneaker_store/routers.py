@@ -5,7 +5,7 @@ from sneakers.views import SneakersViewSet, AdvertsViewSet, BrandsViewSet, Lines
 from purchases.views import PurchasesViewSet
 from type_payments.views import TypePaymentsViewSet
 from notifications.views import NotificationsViewSet
-from about_us.views import AboutUsViewSet
+from about_us.views import AboutUsViewSet, TermsOfUseViewSet, PrivacyPolicyViewSet
 
 router = routers.DefaultRouter()
 
@@ -19,3 +19,5 @@ router.register(r'purchases', PurchasesViewSet, basename='purchases')
 router.register(r'type_payments', TypePaymentsViewSet, basename='type_payments')
 router.register(r'notifications', NotificationsViewSet, basename='notifications')
 router.register(r'about_us', AboutUsViewSet, basename='about_us')
+router.register(r'terms_of_use', TermsOfUseViewSet, basename='terms_of_use')
+router.register(r'privacy_police', PrivacyPolicyViewSet, basename='privacy_police')
