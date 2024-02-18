@@ -14,6 +14,7 @@ from .serializers import NotificationsSerializers
 from datetime import datetime
 import sentry_sdk
 
+
 class NotificationsViewSet(ModelViewSet):
     queryset = Notifications.objects.all()
     serializer_class = NotificationsSerializers
