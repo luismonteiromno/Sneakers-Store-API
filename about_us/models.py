@@ -15,7 +15,7 @@ class AboutUs(models.Model):
 
 
 class TermsOfUse(models.Model):
-    terms = models.FileField(upload_to='terms_of_use/')
+    terms = models.FileField('Termos de Uso', upload_to='terms_of_use/')
 
     def __str__(self):
         return str(self.terms)
@@ -23,3 +23,14 @@ class TermsOfUse(models.Model):
     class Meta:
         verbose_name = 'Termo de Uso'
         verbose_name_plural = 'Termos de Uso'
+
+
+class PrivacyPolicy(models.Model):
+    privacy_policy = models.FileField('Politica de Privacidade', upload_to='privacy_police/')
+
+    def __str__(self):
+        return str(self.privacy_policy)
+
+    class Meta:
+        verbose_name = 'Politica de Privacidade'
+        verbose_name_plural = 'Politicas de Privacidade'
