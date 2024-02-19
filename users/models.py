@@ -16,6 +16,7 @@ class UserProfile(AbstractUser):
     full_name = models.CharField('Nome completo', max_length=200, blank=True, null=True)
     cpf = models.CharField('CPF', unique=True, max_length=11)
     email = models.EmailField('Email', unique=True)
+    phone = models.CharField('Telefone', help_text='Insira o telefone com o DDD na frente ex:(00) 90000-0000', default='', blank=True, null=True)
     type_user = models.CharField('Tipo do Usuário', choices=TYPE_USERS)
     favorite_brands = models.ManyToManyField(Brands, verbose_name='Marcas Favoritas', blank=True)
     favorite_sneakers = models.ManyToManyField(Sneakers, verbose_name='Tênis Favoritos', blank=True)

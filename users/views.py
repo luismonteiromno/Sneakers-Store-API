@@ -21,6 +21,9 @@ class UserViewSet(ModelViewSet):
         data = request.data
         try:
             full_name = data['first_name'] + ' ' + data['last_name']
+            phone = data['phone']
+            if UserProfile.objects.filter(phone=phone).exists():
+                return Response({'message': 'Este número de telefone já está sendo utilizado!'}, status=status.HTTP_400_BAD_REQUEST)
 
             user = UserProfile.objects.create(
                 username=full_name,
@@ -28,6 +31,7 @@ class UserViewSet(ModelViewSet):
                 full_name=full_name,
                 last_name=data['last_name'],
                 cpf=data['cpf'],
+                phone=phone,
                 email=data['email'],
                 notification_active=data['notification_active']
             )
@@ -92,6 +96,18 @@ class UserViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao exibir perfil do usuário!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def user_by_id(self, request):
+        params = request.query_params
+        try:
+            user = UserProfile.objects.get(id=params['user_id'])
+            serializer = UserProfileSerializers(user)
+            return Response({'message': 'Usuário encontrado', 'user': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao exibir perfil do usuário!'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
     def delete_user(self, request):
