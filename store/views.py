@@ -78,6 +78,15 @@ class StoreViewSet(ModelViewSet):
                 else:
                     return Response({'message': 'Há um valor inválido no registro do(s) dono(s)!'}, status=status.HTTP_400_BAD_REQUEST)
 
+                if data['employees'] not in invalids_values:
+                    for employee in data['employees']:
+                        if employee.type_user != 'employee':
+                            return Response({'message': 'Somente usuários do tipo funcionário podem ser adicionados!'},
+                                            status=status.HTTP_400_BAD_REQUEST)
+                        store.employees.add(employee)
+                else:
+                    return Response({'message': 'Há um valor inválido no registro do(s) dono(s)!'}, status=status.HTTP_400_BAD_REQUEST)
+
                 if data['products'] not in invalids_values:
                     for product in data['products']:
                         store.products.add(product)
