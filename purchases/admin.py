@@ -3,7 +3,7 @@ from .models import Purchases
 
 
 class PurchasesAdmin(admin.ModelAdmin):
-    list_display = ['user', 'date_purchase']
+    list_display = ['user', 'date_purchase', 'employee_discount']
     filter_horizontal = ['sneaker']
 
 
