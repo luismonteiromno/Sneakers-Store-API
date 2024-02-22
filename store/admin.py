@@ -3,6 +3,8 @@ from .models import Store
 from django import forms
 from django.forms import ValidationError
 
+from users.models import UserProfile
+
 
 class StoreForm(forms.ModelForm):
     def clean(self):
@@ -35,8 +37,13 @@ class StoreForm(forms.ModelForm):
 
 class StoreAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
-    filter_horizontal = ['owner', 'products', 'type_payments']
+    filter_horizontal = ['owner', 'employees', 'products', 'type_payments']
     form = StoreForm
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'employees':
+            kwargs['queryset'] = UserProfile.objects.filter(type_user='employee')
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(Store, StoreAdmin)

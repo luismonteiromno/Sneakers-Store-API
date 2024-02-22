@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
@@ -73,17 +74,18 @@ class StoreViewSet(ModelViewSet):
                 )
                 if data['owners'] not in invalids_values:
                     for owner in data['owners']:
-                        store.owner.add(user)
                         store.owner.add(owner)
                 else:
                     return Response({'message': 'Há um valor inválido no registro do(s) dono(s)!'}, status=status.HTTP_400_BAD_REQUEST)
 
                 if data['employees'] not in invalids_values:
                     for employee in data['employees']:
-                        if employee.type_user != 'employee':
-                            return Response({'message': 'Somente usuários do tipo funcionário podem ser adicionados!'},
-                                            status=status.HTTP_400_BAD_REQUEST)
-                        store.employees.add(employee)
+                        employees = UserProfile.objects.filter(id=employee)
+                        for user in employees:
+                            if user.type_user != 'employee':
+                                return Response({'message': 'Somente usuários do tipo funcionário podem ser adicionados!'},
+                                                status=status.HTTP_400_BAD_REQUEST)
+                            store.employees.add(user)
                 else:
                     return Response({'message': 'Há um valor inválido no registro do(s) dono(s)!'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -138,12 +140,24 @@ class StoreViewSet(ModelViewSet):
                 if data['owners'] != store.owner:
                     store.owner.clear()
                     for owner in data['owners']:
-                        owners = UserProfile.objects.get(id=owner)
-                        if owners.type_user != 'admin':
-                            return Response({'message': 'Somente administradores podem ser adicionados como donos!'},
-                                            status=status.HTTP_400_BAD_REQUEST)
-                        store.owner.add(user)
-                        store.owner.add(owner)
+                        owners = UserProfile.objects.filter(id=owner)
+                        for user in owners:
+                            if user.type_user == 'admin':
+                                store.owner.add(user)
+                            else:
+                                return Response({'message': 'Somente administradores podem ser adicionados como donos!'},
+                                                status=status.HTTP_400_BAD_REQUEST)
+
+                if data['employees'] != store.employees:
+                    store.employees.clear()
+                    for employee in data['employees']:
+                        employees = UserProfile.objects.filter(id=employee)
+                        for user in employees:
+                            if user.type_user == 'employee':
+                                store.employees.add(employee)
+                            else:
+                                return Response({'message': 'Somente usuários do tipo funcionário podem ser adicionados!'},
+                                                status=status.HTTP_400_BAD_REQUEST)
 
                 if data['products'] != store.products:
                     store.products.clear()
@@ -199,7 +213,7 @@ class StoreViewSet(ModelViewSet):
     def user_stores(self, request):
         user = request.user
         try:
-            stores = Store.objects.filter(owner=user)
+            stores = Store.objects.filter(Q(owner=user) | Q(employees=user))
             serializer = StoreSerializers(stores, many=True)
             return Response({'message': 'Loja(s) em que o usuário é dono', 'stores': serializer.data}, status=status.HTTP_200_OK)
         except Exception as error:
@@ -271,6 +285,18 @@ class StoreViewSet(ModelViewSet):
             )
             serializer = StoreSerializers(stores, many=True)
             return Response({'message': 'Loja(s) que realiza(m) entrega', 'stores': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def stores_by_city(self, request):
+        params = request.query_params
+        try:
+            stores = Store.objects.filter(city__iexact=params['city'])
+            serializer = StoreSerializers(stores, many=True)
+            return Response({'message': 'Loja(s) encontrada(s)', 'stores': serializer.data},
+                            status=status.HTTP_200_OK)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao listar lojas!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
