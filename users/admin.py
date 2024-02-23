@@ -10,6 +10,7 @@ class UserProfileAdmin(UserAdmin):
         ('Informações do Usuário', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')})
     )
     list_display = ['id', 'username', 'email']
+    search_fields = ['username', 'first_name', 'last_name']
     filter_horizontal = ['favorite_brands', 'favorite_sneakers', 'groups', 'user_permissions']
     list_filter = ['type_user']
 
