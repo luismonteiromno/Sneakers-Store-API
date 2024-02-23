@@ -37,6 +37,7 @@ class StoreForm(forms.ModelForm):
 
 class StoreAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
+    search_fields = ['name']
     filter_horizontal = ['owner', 'employees', 'products', 'type_payments']
     form = StoreForm
 
