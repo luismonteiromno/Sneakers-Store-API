@@ -163,7 +163,7 @@ class StoreViewSet(ModelViewSet):
                     store.products.clear()
                     for product in data['products']:
                         products = Sneakers.objects.get(id=product)
-                        if products.in_stock is False:
+                        if products.in_stock == False:
                             return Response({'message': f'Algum(ns) do(s) produto(s) selecionado(s) não está(ão) em estoque!'},
                                             status=status.HTTP_400_BAD_REQUEST)
                         store.products.add(product)
