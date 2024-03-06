@@ -10,6 +10,7 @@ from .models import Purchases
 from users.models import UserProfile
 from sneakers.models import Sneakers
 from .serializers import PurchasesSerializers
+from notifications.models import Notifications
 
 from type_payments.models import TypePayments
 
@@ -63,9 +64,19 @@ class PurchasesViewSet(ModelViewSet):
                     total_purchase_price += sneaker.price
                     purchase.total_purchase = total_purchase_price
 
-                purchase.sneaker_size = data['sneaker_size']
-                purchase.sneaker.add(sneaker.id)
-                purchase.save()
+                    purchase.sneaker_size = data['sneaker_size']
+                    purchase.sneaker.add(sneaker.id)
+                    purchase.save()
+
+            for sneaker in data['sneakers']:
+                sneakers = Sneakers.objects.get(id=sneaker)
+                for owner in sneakers.stores.owner.all():
+                    Notifications.objects.create(
+                        email=owner.email,
+                        subject='Nova compra realizada',
+                        message=f'O(s) produto(s) {sneakers} foi(ram) comprado(s)!',
+                        purchase_notification=True
+                    )
 
             return Response({'message': 'Compra efetuada com sucesso'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
