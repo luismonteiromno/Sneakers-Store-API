@@ -61,3 +61,14 @@ class NotificationsViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao ler notificação!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def notifications_by_user(self, request):
+        user = request.user
+        try:
+            notifications = Notifications.objects.filter(email=user.email)
+            serializer = NotificationsSerializers(notifications, many=True)
+            return Response({'message': 'Notificações encontradas', 'notifications': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar notificações!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
