@@ -5,6 +5,9 @@ class AboutUs(models.Model):
     company = models.CharField('Compania')
     phone = models.CharField('Telefone')
     description = models.TextField('Sobre nós', max_length=300)
+    facebook = models.URLField('Facebook', blank=True, null=True)
+    instagram = models.URLField('Instagram', blank=True, null=True)
+    whatsapp = models.URLField('Whatsapp', blank=True, null=True)
 
     def __str__(self):
         return f"{self.company} - {self.phone}"
