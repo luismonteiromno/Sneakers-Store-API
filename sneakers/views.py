@@ -341,6 +341,18 @@ class SneakersViewSet(ModelViewSet):
             print(error)
             return Response({'message': 'Erro ao buscas o tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def search_size(self, request):
+        params = request.query_params
+        try:
+            size = [float(params['size'])]
+            sneakers = Sneakers.objects.filter(available_sizes__contains=size)
+            serializer = SneakersSerializers(sneakers, many=True)
+            return Response({'message': 'Tênis encontrados', 'sneakers': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao buscar tamanho de tênis!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['DELETE'], permission_classes=[IsAuthenticated])
     def delete_sneaker(self, request):
         data = request.data
