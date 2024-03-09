@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 
-
+from .models import TYPE_USERS
 from .models import UserProfile
 from .serializers import UserProfileSerializers
 
@@ -119,3 +119,14 @@ class UserViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao deletar usuário!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    def types_of_user(self, request):
+        try:
+            types = []
+            for type_owners in TYPE_USERS:
+                types.append(type_owners[1])
+            return Response({'message': 'Tipos de usuário', 'types': types}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar tipos de usuários!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

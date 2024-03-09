@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
-from .routers import router
+from routers.routers import router
 
 admin.site.site_title = 'Sneakers Store API'
 admin.site.site_header = 'Sneakers Store Administração'
