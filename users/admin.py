@@ -6,6 +6,7 @@ from django.contrib.auth.admin import UserAdmin
 class UserProfileAdmin(UserAdmin):
     fieldsets = (
         ('Informações Pessoais', {'fields': ('username', 'first_name', 'last_name', 'cpf', 'email', 'phone', 'type_user')}),
+        ('Localização', {'fields': ('city', 'cep', 'street', 'number_house', 'complement', 'state')}),
         ('Informações de Notificações', {'fields': ('favorite_brands', 'favorite_sneakers', 'notification_active')}),
         ('Informações do Usuário', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')})
     )

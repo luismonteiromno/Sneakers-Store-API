@@ -20,17 +20,27 @@ class UserViewSet(ModelViewSet):
     def register_user(self, request):
         data = request.data
         try:
-            full_name = data['first_name'] + ' ' + data['last_name']
-            phone = data['phone']
+            full_name = f"{data['first_name']} {data['last_name']}"
+            phone = data.get('phone', 'Informação não preenchida')
+            cpf = data['cpf']
             if UserProfile.objects.filter(phone=phone).exists():
                 return Response({'message': 'Este número de telefone já está sendo utilizado!'}, status=status.HTTP_400_BAD_REQUEST)
+            if UserProfile.objects.filter(cpf=cpf).exists():
+                return Response({'message': 'Este CPF não é válido!'}, status=status.HTTP_400_BAD_REQUEST)
 
             user = UserProfile.objects.create(
                 username=full_name,
                 first_name=data['first_name'],
                 full_name=full_name,
                 last_name=data['last_name'],
-                cpf=data['cpf'],
+                city=data['city'],
+                street=data['street'],
+                state=data['state'],
+                number_house=data['number_house'],
+                cep=data['cep'],
+                complement=data.get('complement', 'informação não preenchida'),
+                cpf=cpf,
+                type_user=data['type_user'],
                 phone=phone,
                 email=data['email'],
                 notification_active=data['notification_active']
