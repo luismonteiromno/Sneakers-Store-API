@@ -3,7 +3,7 @@ from .models import UserProfile
 
 
 class UserProfileSerializers(serializers.ModelSerializer):
-    phone = serializers.SerializerMethodField()
+    # phone = serializers.SerializerMethodField()
 
     # def get_phone(self, obj):
     #     invalids = [None, ' ', '']

@@ -69,6 +69,13 @@ class UserViewSet(ModelViewSet):
             user_update.last_name = data['last_name']
             user_update.full_name = data['full_name']
             user_update.notification_active = data['notification_active']
+            user_update.cep = data['cep']
+            user_update.city = data['city']
+            user_update.state = data['state']
+            user_update.street = data['street']
+            user_update.number_house = data['number_house']
+            user_update.complement = data['complement']
+            user_update.type_user = data['type_user']
 
             if user_update.favorite_brands != data['favorite_brands']:
                 user_update.favorite_brands.clear()
