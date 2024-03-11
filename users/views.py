@@ -8,7 +8,9 @@ from rest_framework.authtoken.models import Token
 
 from .models import TYPE_USERS
 from .models import UserProfile
-from .serializers import UserProfileSerializers
+from .serializers import UserProfileSerializers, UserShoppingCartSerializer
+
+from sneakers.models import Sneakers
 
 
 class UserViewSet(ModelViewSet):
@@ -69,6 +71,7 @@ class UserViewSet(ModelViewSet):
             user_update.last_name = data['last_name']
             user_update.full_name = data['full_name']
             user_update.notification_active = data['notification_active']
+            user_update.phone = data['phone']
             user_update.cep = data['cep']
             user_update.city = data['city']
             user_update.state = data['state']
@@ -147,3 +150,29 @@ class UserViewSet(ModelViewSet):
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao listar tipos de usuários!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def add_product_cart(self, request):
+        user = request.user
+        data = request.data
+        try:
+            for sneaker in data['sneakers']:
+                if not Sneakers.objects.filter(id=sneaker).exists():
+                    return Response({'message': 'Produto não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+                products = Sneakers.objects.get(id=sneaker)
+                user.shopping_cart.add(products)
+            return Response({'message': 'Produto adicionado com sucesso'}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao adicionar produtos ao carrinho de compra'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def products_of_shopping_cart(self, request):
+        user = request.user
+        try:
+            user_cart = UserProfile.objects.get(pk=user.id)
+            serializer = UserShoppingCartSerializer(user_cart).data
+            return Response({'message': 'Carrinho de compras', 'shopping_cart': serializer}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response({'message': 'Erro ao listar produtos ao carrinho de compra'})
