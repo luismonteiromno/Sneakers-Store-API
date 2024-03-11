@@ -26,6 +26,7 @@ class UserProfile(AbstractUser):
     type_user = models.CharField('Tipo do Usuário', choices=TYPE_USERS)
     favorite_brands = models.ManyToManyField(Brands, verbose_name='Marcas Favoritas', blank=True)
     favorite_sneakers = models.ManyToManyField(Sneakers, verbose_name='Tênis Favoritos', blank=True)
+    shopping_cart = models.ManyToManyField(Sneakers, verbose_name='Carrinho de compras', related_name='user_shopping_cart', blank=True)
     notification_active = models.BooleanField('Notificações Ativas', default=False)
 
     USERNAME_FIELD = 'email'

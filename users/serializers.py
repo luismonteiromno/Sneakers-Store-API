@@ -3,7 +3,7 @@ from .models import UserProfile
 
 
 class UserProfileSerializers(serializers.ModelSerializer):
-    phone = serializers.SerializerMethodField()
+    # phone = serializers.SerializerMethodField()
 
     # def get_phone(self, obj):
     #     invalids = [None, ' ', '']
@@ -16,3 +16,10 @@ class UserProfileSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__'
+
+
+class UserShoppingCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        depth = 1
+        model = UserProfile
+        fields = ['shopping_cart']
