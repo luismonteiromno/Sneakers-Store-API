@@ -25,6 +25,7 @@ class Store(models.Model):
     delivery = models.BooleanField('Faz entrega', default=False)
     minimum_delivery = models.IntegerField('Tempo minímo de entrega', default=0, blank=True, null=True)
     maximum_delivery = models.IntegerField('Tempo máximo de entrega', default=60, blank=True, null=True)
+    orders = models.ManyToManyField(Sneakers, verbose_name='Pedidos', null=True)
 
     def __str__(self):
         return self.name
