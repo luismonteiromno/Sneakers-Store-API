@@ -38,7 +38,7 @@ class StoreForm(forms.ModelForm):
 class StoreAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
     search_fields = ['name']
-    filter_horizontal = ['owner', 'employees', 'products', 'type_payments']
+    filter_horizontal = ['owner', 'employees', 'products', 'type_payments', 'orders']
     form = StoreForm
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):

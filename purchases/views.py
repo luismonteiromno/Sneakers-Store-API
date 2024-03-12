@@ -70,6 +70,7 @@ class PurchasesViewSet(ModelViewSet):
 
             for sneaker in data['sneakers']:
                 sneakers = Sneakers.objects.get(id=sneaker)
+                sneakers.stores.orders.add(sneakers.id)
                 for owner in sneakers.stores.owner.all():
                     Notifications.objects.create(
                         email=owner.email,
