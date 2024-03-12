@@ -34,8 +34,7 @@ class NotificationsViewSet(ModelViewSet):
                     send_date=now
                 )
                 return Response({'message': 'Notificação enviada com sucesso'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'message': 'Email não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Email não encontrado!'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as error:
             print(error)
             return Response({'message': 'Erro ao enviar notificação!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -77,7 +76,7 @@ class NotificationsViewSet(ModelViewSet):
     def notifications_purchases(self, request):
         try:
             notifications = list(Notifications.objects.filter(purchase_notification=True))
-            if notifications == []:
+            if not notifications:
                 return Response({'message': 'Nenhuma notificação encontrada!'}, status=status.HTTP_200_OK)
             serializer = NotificationsSerializers(notifications, many=True)
             return Response({'message': 'Notificações encontradas', 'notifications': serializer.data}, status=status.HTTP_200_OK)
