@@ -201,6 +201,11 @@ class StoreViewSet(ModelViewSet):
                     return Response({'message': 'Preencha o campo tempo minímo/máximo de entrega corretamente!'}
                                     , status=status.HTTP_400_BAD_REQUEST)
 
+                if data['orders'] != store.orders.all():
+                    store.orders.clean()
+                    for order in data['orders']:
+                        store.orders.add(int(order))
+
                 store.save()
                 return Response({'message': 'Loja atualizada com sucesso'}, status=status.HTTP_200_OK)
             else:
