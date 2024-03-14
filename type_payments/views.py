@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
