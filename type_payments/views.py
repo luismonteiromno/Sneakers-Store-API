@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
@@ -7,7 +8,6 @@ from rest_framework.decorators import action
 
 from .models import TypePayments
 from .serializers import TypePaymentsSerializers
-
 
 class TypePaymentsViewSet(ModelViewSet):
     queryset = TypePayments.objects.all()

@@ -16,7 +16,7 @@ import sentry_sdk
 class AboutUsViewSet(ModelViewSet):
     queryset = AboutUs.objects.all()
     serializer_class = AboutUsSerializer
-    permission_classes = AllowAny
+    permission_classes = [AllowAny]
 
     @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
     def about_us(self, request):
@@ -54,18 +54,22 @@ class TermsOfUseViewSet(ModelViewSet):
 class PrivacyPolicyViewSet(ModelViewSet):
     queryset = PrivacyPolicy.objects.all()
     serializer_class = PrivacyPoliceSerializer
-    permission_classes = AllowAny
+    permission_classes = [AllowAny]
+    
+    filterset_fields = [
+        'privacy_policy'
+    ]
 
-    @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
-    def privacy_police(self, request):
-        try:
-            privacy_police = PrivacyPolicy.objects.last()
-            if privacy_police != None:
-                serializer = PrivacyPoliceSerializer(privacy_police)
-                return Response({'message': 'Politica de Privacidade', 'privacy_police': serializer.data},
-                                status=status.HTTP_200_OK)
-            else:
-                return Response({'message': 'Nenhuma informação encontrada!'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as error:
-            print(error)
-            return Response({'message': 'Erro ao exibir politica de privacidade!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    # @action(detail=False, methods=['GET'], permission_classes=[AllowAny])
+    # def privacy_police(self, request):
+    #     try:
+    #         privacy_police = PrivacyPolicy.objects.last()
+    #         if privacy_police != None:
+    #             serializer = PrivacyPoliceSerializer(privacy_police)
+    #             return Response({'message': 'Politica de Privacidade', 'privacy_police': serializer.data},
+    #                             status=status.HTTP_200_OK)
+    #         else:
+    #             return Response({'message': 'Nenhuma informação encontrada!'}, status=status.HTTP_404_NOT_FOUND)
+    #     except Exception as error:
+    #         print(error)
+    #         return Response({'message': 'Erro ao exibir politica de privacidade!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
