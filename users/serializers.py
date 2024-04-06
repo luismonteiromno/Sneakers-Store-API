@@ -14,6 +14,7 @@ class UserProfileSerializers(serializers.ModelSerializer):
     #         return obj.phone
 
     class Meta:
+        depth = 1
         model = UserProfile
         fields = '__all__'
 
